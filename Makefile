@@ -16,6 +16,7 @@ install:
 	@echo 'cb <bookmark_name> - Goes (cd) to the directory associated with "bookmark_name"'
 	@echo 'pb <bookmark_name> - Prints the directory associated with "bookmark_name"'
 	@echo 'db <bookmark_name> - Deletes the bookmark'
+	@echo 'ob <bookmark_name> - Open bookmark in finder (mac only)'
 	@echo 'lb                 - Lists all available bookmarks'
 
 .PHONY: all install

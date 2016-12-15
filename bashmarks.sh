@@ -30,6 +30,8 @@
 # pb b[TAB] - tab completion is available
 # db bookmarkname - deletes the bookmark
 # db [TAB] - tab completion is available
+# ob bookmarkname - open bookmark in finder
+# ob [TAB] - tab completion is available
 # lb - list all bookmarks
 
 # setup file to store bookmarks
@@ -101,6 +103,7 @@ function check_help {
         echo 'cb <bookmark_name> - Goes (cd) to the directory associated with "bookmark_name"'
         echo 'pb <bookmark_name> - Prints the directory associated with "bookmark_name"'
         echo 'db <bookmark_name> - Deletes the bookmark'
+        echo 'ob <bookmark_name> - Open bookmark in Finder (mac only)'
         echo 'lb                 - Lists all available bookmarks'
         kill -SIGINT $$
     fi
@@ -123,6 +126,21 @@ function _l {
     env | grep "^DIR_" | cut -c5- | sort | grep "^.*=" | cut -f1 -d "=" 
 }
 
+# added from https://github.com/huyng/bashmarks/pull/52
+# open bookmark in mac
+function ob {
+    check_help $1
+    source $SDIRS
+    target="$(eval $(echo echo $(echo \$DIR_$1)))"
+    if [ -d "$target" ]; then
+        open "$target"
+    elif [ ! -n "$target" ]; then
+        echo -e "\033[${RED}WARNING: '${1}' bashmark does not exist\033[00m"
+    else
+        echo -e "\033[${RED}WARNING: '${target}' does not exist\033[00m"
+    fi
+}
+
 # validate bookmark name
 function _bookmark_name_valid {
     exit_message=""
@@ -136,11 +154,38 @@ function _bookmark_name_valid {
 }
 
 # completion command
+# function _comp {
+#     local curw
+#     COMPREPLY=()
+#     curw=${COMP_WORDS[COMP_CWORD]}
+#     COMPREPLY=($(compgen -W '`_l`' -- $curw))
+#     return 0
+# }
+
+# added subdirectory completion command from https://github.com/huyng/bashmarks/pull/55/commits/b406997b4c3879e74a1d010fcd31d1b2ea08986e
+# completion command: doesn't work properly for me yet.
 function _comp {
     local curw
     COMPREPLY=()
     curw=${COMP_WORDS[COMP_CWORD]}
-    COMPREPLY=($(compgen -W '`_l`' -- $curw))
+
+    mark=$(echo $curw | sed 's/\/.*$//')
+    target="$(eval $(echo echo $(echo \$DIR_$mark)))"
+    if [[ $curw == *\/* ]] && [ -d "$target" ]; then
+      afterMark=${curw#*"/"}
+      depth=$(echo $afterMark | tr -cd "/" | wc -c)
+      if [ "$depth" -gt "0" ]; then
+        lastDir=$(echo "$afterMark" | cut -d "/" -f -$depth)
+      else
+        lastDir=""
+      fi
+      list=$(find $target/$lastDir -maxdepth 1 -type d| sed "s#$target#$mark#")
+
+      COMPREPLY=($(compgen -W '$list' -- $curw))
+    else
+      COMPREPLY=($(compgen -W '`_l`' -- $curw))
+    fi
+
     return 0
 }
 
@@ -171,9 +216,11 @@ if [ $ZSH_VERSION ]; then
     compctl -K _compzsh cb
     compctl -K _compzsh pb
     compctl -K _compzsh db
+    compctl -K _compzsh ob
 else
     shopt -s progcomp
     complete -F _comp cb 
     complete -F _comp pb
     complete -F _comp db
+    complete -F _comp ob
 fi

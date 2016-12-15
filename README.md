@@ -13,7 +13,10 @@
     cb <bookmark_name> - Goes (cd) to the directory associated with "bookmark_name"
     pb <bookmark_name> - Prints the directory associated with "bookmark_name"
     db <bookmark_name> - Deletes the bookmark
+    ob <bookmark_name> - Open in Finder (mac only)
     lb                 - Lists all available bookmarks
+
+    Note: tab completion for subdirectories doesn't work very well yet.  
     
 ## Example Usage
 
