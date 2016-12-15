@@ -16,7 +16,7 @@
     ob <bookmark_name> - Open in Finder (mac only)
     lb                 - Lists all available bookmarks
 
-    Note: tab completion for subdirectories doesn't work very well yet.  
+    Note: tab completion for subdirectories doesn't work properly on mac but seems to work well on ubuntu.
     
 ## Example Usage
 

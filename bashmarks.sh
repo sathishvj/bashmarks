@@ -59,13 +59,14 @@ function cb {
     check_help $1
     source $SDIRS
 
-    # vj split $1 into saved part and any sub dir
-    ROOTB=echo $1 | cut -d\/ -f1
-    SUBDIRS=echo $1 | cut -d\/ -f2-
-    
+    # vj: split $1 into saved part and any sub dir
+    ROOTB=$(echo "$1" | cut -d '/' -f1)
+    SUBDIRS=$(echo "$1" | cut -d '/' -f2-)
+
     target="$(eval $(echo echo $(echo \$DIR_$ROOTB)))"
 
-    if [ ! -z $SUBDIRS ]; then 
+    # somehow if no subdirs are given, the value of ROOTB and SUBDIRS is the same on ubuntu. But it seems ok on mac.
+    if [[ ! -z $SUBDIRS && $SUBDIRS != $ROOTB ]]; then
         target="$target/$SUBDIRS"
     fi
 
