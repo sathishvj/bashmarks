@@ -46,11 +46,22 @@ GREEN="0;33m"
 # save current directory to bookmarks
 function sb {
     check_help $1
-    _bookmark_name_valid "$@"
+
+	b="$1"
+	# if no bookmark, then use current directory name
+	if [[ -z "$1"  || "$1" == "." ]]; then
+		# get basename of current working directory
+		b=${PWD##*/}  
+		# replace all - with _
+		b=`echo $b | sed s/-/_/`
+		echo "Using current directory name for bashmark: $b"
+	fi
+
+	_bookmark_name_valid "$b"
     if [ -z "$exit_message" ]; then
-        _purge_line "$SDIRS" "export DIR_$1="
+        _purge_line "$SDIRS" "export DIR_$b="
         CURDIR=$(echo $PWD| sed "s#^$HOME#\$HOME#g")
-        echo "export DIR_$1=\"$CURDIR\"" >> $SDIRS
+        echo "export DIR_$b=\"$CURDIR\"" >> $SDIRS
     fi
 }
 
@@ -74,8 +85,12 @@ function cb {
         cd "$target"
     elif [ ! -n "$target" ]; then
         echo -e "\033[${RED}WARNING: '${1}' bashmark does not exist\033[00m"
+		echo "Available bookmarks:"
+		lb
+		return 1
     else
         echo -e "\033[${RED}WARNING: '${target}' does not exist\033[00m"
+		return 1
     fi
 }
 
