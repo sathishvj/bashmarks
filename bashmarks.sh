@@ -53,7 +53,7 @@ function sb {
 		# get basename of current working directory
 		b=${PWD##*/}  
 		# replace all - with _
-		b=`echo $b | sed s/-/_/`
+		b=`echo $b | sed s/-/_/g`
 		echo "Using current directory name for bashmark: $b"
 	fi
 
